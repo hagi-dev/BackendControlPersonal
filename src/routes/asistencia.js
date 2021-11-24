@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const personal = require('../../controles/personal');
+const asistencia = require('../../controles/asistencia');
 
-//get all personal
-router.get('/api/asistencia',personal.list);
+//get all asistencia
+router.get('/api/asistencia',asistencia.list);
 
 module.exports = router;
