@@ -51,7 +51,7 @@ exports.update = async (req, res) =>
     const {id} = req.params;
     //verificar si existe el id
     //el status= true ==1 es que si existe y el false==0 es que no existe
-    await pool.query(`select FUC_VERIFICAR_id_EXISTENTE(?,?,?) as valor`,[id,'personal','PER_id'],(err, rows, fields) => {
+    await pool.query(`select FUC_VERIFICAR_PERSONALID_EXISTENTE(?) as valor`,id,(err, rows, fields) => {
         if (!err) {
             if(rows[0]['valor']===0){
                 res.json({status:true,message:'el id del personal no existe'});
@@ -78,7 +78,7 @@ exports.delete = async (req, res) =>
     const {id} = req.params;
     //verificar si existe el id
     //el status= true ==1 es que si existe y el false==0 es que no existe
-    await pool.query(`select FUC_VERIFICAR_id_EXISTENTE(?,?,?) as valor`,[id,'personal','PER_id'],(err, rows, fields) => {
+    await pool.query(`select FUC_VERIFICAR_PERSONALID_EXISTENTE(?) as valor`,id,(err, rows, fields) => {
         if (!err) {
             if(rows[0]['valor']===0){
                 res.json({status:true,message:'el id del personal no existe'});

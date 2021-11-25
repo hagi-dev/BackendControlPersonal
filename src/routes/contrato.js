@@ -1,11 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const personal = require('../../controles/personal');
+const contrato = require('../../controles/contrato');
 
-//get all personal
-router.get('/api/contrato',personal.list);
-router.post('/api/contrato/registrar',personal.insert);
-router.put('/api/contrato/update/:id',personal.update);
-router.delete('/api/contrato/delete/:id',personal.delete);
+//get all contrato
+router.get('/api/contrato',contrato.list);
+router.post('/api/contrato/registrar',contrato.insert);
+router.put('/api/contrato/update/:id',contrato.update);
+router.delete('/api/contrato/delete/:id',contrato.delete);
 
 module.exports = router;
