@@ -1,11 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const personal = require('../../controles/personal');
+const permiso = require('../../controles/permiso');
 
-//get all personal
-router.get('/api/permiso',personal.list);
-router.post('/api/permiso/registrar',personal.insert);
-router.put('/api/permiso/update/:id',personal.update);
-router.delete('/api/permiso/delete/:id',personal.delete);
+//get all permiso
+router.get('/api/permiso',permiso.list);
+router.post('/api/permiso/registrar',permiso.insert);
+router.put('/api/permiso/update/:id',permiso.update);
+router.delete('/api/permiso/delete/:id',permiso.delete);
 
 module.exports = router;
