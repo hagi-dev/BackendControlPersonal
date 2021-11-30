@@ -3,8 +3,8 @@ const pool = require('../src/database');
 exports.list = (req, res) => 
 {
 
-    const query = 'CALL SP_CRUD_CONTRATO (?,null,null,null,null,null,null)';
-    const prueba = pool.query(query, 'S', (err, rows, fields) => {
+    const query = 'call CONTRATO_CONSULTA(?,null) ';
+    const prueba = pool.query(query, 'G', (err, rows, fields) => {
         if (!err) {
             res.json(rows);
         } else {
@@ -35,13 +35,17 @@ exports.insert = async (req, res) =>
                         pool.query(query, ['A',null,fechaInicioContrato,fechaFinContrato,null,idPersonal,idTipoTrabajador],(err, rows, fields) => {
                             if (!err) {
                                 // jornada laboral
-                                pool.query(query2, ['A',null,idPersonal,null,null,null,fechaInicioContrato,null,fechaFinContrato],(err, rows, fields) => {
+                                pool.query(query2, ['A',null,idPersonal,null,null,null,fechaInicioContrato,fechaFinContrato,null],(err, rows, fields) => {
                                     if (!err) {
-                                        res.json({status:false,message:'contrato y jornada laboral registrado'});
+                                        console.log("se inserto el jornada");
                                     } else {
                                         console.log(err);
                                     }
                                 } );
+                                pool.query(`call SP_CRUD_CONTRATO_HORARIO(?,FUC_ID_CONTRATO(?),?)`, ['A',idPersonal,1]).then(result => {
+                                    console.log("se inserto el horario");
+                                }).catch(e=>console.log(`hubo un error en el insert el horario: ${e}`));
+                                res.json({status:false,message:'contrato y jornada laboral registrado'});
                             } else {
                                 console.log(err);
                             }

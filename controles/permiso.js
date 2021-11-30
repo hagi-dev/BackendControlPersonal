@@ -41,31 +41,41 @@ exports.update = async (req, res) =>
     const {id} = req.params;
     //verificar si existe el id
     //el status= true ==1 es que si existe y el false==0 es que no existe
-    // try {
-    //     await pool.query(`call SP_CRUD_PERMISO(?,?,?,?,?,?,?,?)`,['M',id,detalle,fechaInicio,estado,idContrato,fechaFinal,null]);
-    //     await pool.query(`call SP_CRUD_JORNADA_LABORAL(?,?,?,?,?,?,?,?,?)`,['MP',id,idContrato,null,null,'3',fechaInicio,fechaFinal,2]);
-    //     res.json({status:false,message: 'Permiso actualizado correctamente'});
-    //     console.log(existe[0]['valor']);
-    // }catch (e) {
-    //     console.log(e);
-    //     res.json({status:true,message:`error el proceso de actualizar permiso falta datos ${e}`});
-    // }     
+    try {
+        await pool.query(`call SP_CRUD_PERMISO(?,?,?,?,?,?,?,?)`,['M',id,detalle,fechaInicio,estado,idContrato,fechaFinal,null]);
+        await pool.query(`call SP_CRUD_JORNADA_LABORAL(?,?,?,?,?,?,?,?,?)`,['MP',id,idContrato,null,null,'3',fechaInicio,fechaFinal,2]);
+        res.json({status:false,message: 'Permiso actualizado correctamente'});
+        console.log(existe[0]['valor']);
+    }catch (e) {
+        console.log(e);
+        res.json({status:true,message:`error el proceso de actualizar permiso falta datos ${e}`});
+    }     
 };
 
 exports.delete = async (req, res) => 
 {
     const {id} = req.params;
-    //verificar si existe el id
-    //el status= true ==1 es que si existe y el false==0 es que no exist
+    /**
+    verificar si existe el id
+    el status= true ==1 es que si existe y el false==0 es que no exist
+    **/
                 
-                const query = `CALL SP_CRUD_HORARIO (?,?,?,?,?,?,?,?,?)`;
-                pool.query(query,['D',id,null,null,null, null,null,null,null],(err, rows, fields) => {
-                    if (!err) {
-                        res.json({status:false,message:'Horario eliminado'});
-                    } else {
-                        console.log(err);
-                    }
-                });
-          
+    try {
+        
+        const query = `CALL SP_CRUD_PERMISO (?,?,?,?,?,?,?,?)`;
+        const query2 = `Select FUC_VERIFICAR_FECHA_PERMISO(?) as valor`;
+        const valor = await pool.query(query2,[id]).catch(e=>console.log(`hubo un error en verficar la fecha del permiso: ${e}`));
+        await pool.query(query,['D',id,null,null,null, null,null,valor],(err, rows, fields) => {
+            if (!err) {
+                res.json({status:false,message:'Permiso eliminado'});
+            } else {
+                console.log(err);
+            }
+        });
+
+    } catch (error) {
+        
+    }
+
     
 };

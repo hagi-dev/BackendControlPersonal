@@ -4,7 +4,7 @@ exports.list = async (req, res) =>
 {
 
     const query = 'CALL SP_CRUD_TIPO_TRABAJADOR (?,null,null,null,null)';
-    await pool.query(query,'S' ,(err, rows, fields) => {
+    await pool.query(query,'CC' ,(err, rows, fields) => {
         if (!err) {
             res.json(rows);
         } else {
