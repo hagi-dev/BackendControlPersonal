@@ -475,4 +475,25 @@ END$$
 
 DELIMITER ;
 
+SELECT C.CON_id as 'contratoid', P.PER_nombre as 'nombre', P.PER__apaterno as 
+'apellido',C.CON_fecha_inn as 'inicioContrato', C.CON_fecha_out as 'finalContrato', 
+C.CON_estado as 'estado',T.TTR_cargo as 'tipoTrabajador'
+FROM  contrato C  INNER JOIN
+                  personal P ON C.PER_id = P.PER_id INNER JOIN
+                  tipo_trabajador T ON C.TTR_id = T.TTR_id
+WHERE C.CON_id = 1;
 
+SELECT H.HOR_id as 'horarioid',R.HOR_detalle as 'dias', R.HOR_hora_inn as 'horaEntrada', R.HOR_hora_out as 'horaSalida',
+FROM contrato C INNER JOIN
+                  contrato_horario H ON C.CON_id = H.CON_id INNER JOIN
+                  horario R ON H.HOR_id = R.HOR_id
+
+SELECT C.CON_id as 'contratoid', P.PER_id as 'personaid', P.PER_nombre as 'nombre', P.PER_apaterno as 
+	'apellido',C.CON_fecha_inn as 'inicioContrato', C.CON_fecha_out as 'finalContrato', C.CON_estado as 'estado',
+	T.TTR_cargo as 'tipoTrabajador',H.HOR_id as 'horarioid',H.HOR_detalle as 'dias', H.HOR_hora_inn as 'horaEntrada',
+	 H.HOR_hora_out as 'horaSalida',
+FROM contrato C INNER JOIN
+                  contrato_horario N ON C.CON_id = N.CON_id INNER JOIN
+                  horario H ON N.HOR_id = H.HOR_id INNER JOIN
+                  personal P ON C.PER_id = P.PER_id INNER JOIN
+                  tipo_trabajador T ON C.TTR_id = T.TTR_id
