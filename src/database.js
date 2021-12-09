@@ -1,23 +1,6 @@
 const mysql = require('mysql');
 const { promisify } = require('util');
 const { database } = require('./keys');
-// const mysqlConnection = mysql.createConnection({
-//     host: 'localhost',
-//     user: 'root',
-//     password: '',
-//     database: 'control_personal',
-//     multipleStatements: true
-// });
-
-// mysqlConnection.connect(function (err) {
-//     if (err) {
-//         console.log(err);
-//         return;
-//     }else {
-//         console.log('DB is connected');
-//     }
-// });
-
 const pool = mysql.createPool(database);
 pool.getConnection((err, connection) => {
     if (err) {
@@ -42,3 +25,20 @@ pool.query = promisify(pool.query);
 
 module.exports = pool;
 
+
+// const mysqlConnection = mysql.createConnection({
+//     host: 'localhost',
+//     user: 'root',
+//     password: '',
+//     database: 'control_personal',
+//     multipleStatements: true
+// });
+
+// mysqlConnection.connect(function (err) {
+//     if (err) {
+//         console.log(err);
+//         return;
+//     }else {
+//         console.log('DB is connected');
+//     }
+// });

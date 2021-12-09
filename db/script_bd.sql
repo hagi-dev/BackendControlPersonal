@@ -133,3 +133,12 @@ on delete cascade on update cascade,
 constraint PK_SAN primary key (CON_id, HOR_id)
 )
 engine = InnoDB;
+
+SELECT C.CON_id as 'contrato', P.PER_dni as 'dni', P.PER_nombre as 'nombre' ,P.PER_apaterno as 'paterno',
+ T.TTR_descripcion AS 'cargo', R.REGE_hora_inn AS 'ingreso', J.JLAB_fecha AS 'fecha',
+FROM  contrato C INNER JOIN
+                  personal P ON C.PER_id = P.PER_id INNER JOIN
+                  tipo_trabajador T ON C.TTR_id = T.TTR_id INNER JOIN
+                  jornada_laboral J ON C.CON_id = J.CON_id INNER JOIN
+                  registro_entrada R ON J.JLAB_id = R.JLAB_id 
+                  AND J.CON_id = R.CON_id

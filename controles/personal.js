@@ -17,10 +17,10 @@ exports.list = async (req, res) =>
 exports.insert = async (req, res) => 
 {
 
-    const {id,nombre,paterno,genero,materno,dni,url,telefono,direccion,fecha_nacimiento,estado} = req.body;
+    const {id,nombre,paterno,genero,materno,dni,url,telefono,direccion,fecha_nacimiento,estado,idHuellas} = req.body;
     //verificar si existe el personal
     //el status= true ==1 es que si existe y el false==0 es que no existe
-    await pool.query(`select FUC_VERIFICAR_PERSONAL_EXISTENTE(?) as valor`,dni,(err, rows, fields) => {
+    await pool.query(`select FUC_VERIFICAR_PERSONAL_EXISTENTE(?) as valor`,[dni],(err, rows, fields) => {
         if (!err) {
             if(rows[0]['valor']===1){
                 res.json({status:true,message:'El personal ya existe'});
@@ -29,7 +29,15 @@ exports.insert = async (req, res) =>
                 const query = `CALL SP_CRUD_PERSONAL(?,?,?,?,?,?,?,?,?,?,?,?);`;
                 pool.query(query, ['A',id,nombre,paterno,materno,genero,fecha_nacimiento,url,estado,telefono, dni, direccion],(err, rows, fields) => {
                     if (!err) {
-                        res.json({status:false,message:'Personal registrado'});
+                        for(let f =0; f<idHuellas;f++){
+                            pool.query(`insert into huella (PER_id) values(FUC_ID_PERSONAL(?))`, [dni],(err, rows, fields) => {
+                                if(!err){
+                                    res.json({status:false,message:'Personal y huella registrado'});
+                                }else{
+                                    console.log(err);
+                                }
+                            });
+                        }
                     } else {
                         console.log(err);
                     }

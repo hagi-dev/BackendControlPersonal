@@ -3,8 +3,8 @@ const pool = require('../src/database');
 exports.list = (req, res) => 
 {
 
-    const query = 'call CONTRATO_CONSULTA(?,null) ';
-    const prueba = pool.query(query, 'G', (err, rows, fields) => {
+    const query = `CALL SP_CRUD_CONTRATO (?,?,?,?,?,?,?)`;
+    const prueba = pool.query(query, ['S',null,null,null,null,null,null], (err, rows, fields) => {
         if (!err) {
             res.json(rows);
         } else {
@@ -16,7 +16,7 @@ exports.list = (req, res) =>
 exports.insert = async (req, res) => 
 {
 
-    const {fechaInicioContrato,fechaFinContrato,idPersonal,idTipoTrabajador} = req.body;
+    const {fechaInicioContrato,fechaFinContrato,idPersonal,idTipoTrabajador,idHorarios} = req.body;
     //verificar si existe el personal
     //el status= true ==1 es que si existe y el false==0 es que no existe
     pool.query(`SELECT TIMESTAMPDIFF(MONTH, ?, ?) as valor1`,[fechaInicioContrato,fechaFinContrato],(err, rows, fields) => {
@@ -42,9 +42,17 @@ exports.insert = async (req, res) =>
                                         console.log(err);
                                     }
                                 } );
-                                pool.query(`call SP_CRUD_CONTRATO_HORARIO(?,FUC_ID_CONTRATO(?),?)`, ['A',idPersonal,1]).then(result => {
-                                    console.log("se inserto el horario");
-                                }).catch(e=>console.log(`hubo un error en el insert el horario: ${e}`));
+                                let valor= idHorarios.length;
+                                for(let a=0 ;a<valor;a++){
+                                    const query3 = `CALL SP_CRUD_CONTRATO_HORARIO (?,FUC_ID_CONTRATO(?),?)`;
+                                    pool.query(query3, ['A',idPersonal,idHorarios[a]],(err, rows, fields) => {
+                                        if (!err) {
+                                            console.log("se inserto la horario");
+                                        } else {
+                                            console.log(err);
+                                        }
+                                    } );
+                                };
                                 res.json({status:false,message:'contrato y jornada laboral registrado'});
                             } else {
                                 console.log(err);
@@ -71,7 +79,7 @@ exports.insert = async (req, res) =>
 
 exports.update = async (req, res) => 
 {
-    const {fechaInicioContrato,fechaFinContrato,idPersonal,idTipoTrabajador,estado} = req.body;
+    const {fechaInicioContrato,fechaFinContrato,idPersonal,idTipoTrabajador,estado,idHorario} = req.body;
     const {id} = req.params;
     //verificar si existe el id
     //el status= true ==1 es que si existe y el false==0 es que no existe
