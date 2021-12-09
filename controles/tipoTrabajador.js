@@ -13,6 +13,20 @@ exports.list = async (req, res) =>
     });
 
 }
+
+exports.listContrato = async (req, res) => 
+{
+
+    const query = 'select TTR_id as id, TTR_cargo as cargo, TTR_area as area from tipo_trabajador';
+    await pool.query(query,'CC' ,(err, rows, fields) => {
+        if (!err) {
+            res.json(rows);
+        } else {
+            console.log(err);
+        }
+    });
+
+}
 exports.listId = async (req, res) =>
 {
     const { id } = req.params;

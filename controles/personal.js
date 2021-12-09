@@ -13,6 +13,20 @@ exports.list = async (req, res) =>
     });
 
 }
+
+exports.listId = async (req, res) => 
+{
+    const {id} = req.params;
+    const query = 'CALL SP_CRUD_PERSONAL (?,?,null,null,null,null,null,null,null,null,null,null)';
+    await pool.query(query,['I',id] ,(err, rows, fields) => {
+        if (!err) {
+            res.json(rows);
+        } else {
+            console.log(err);
+        }
+    });
+
+}
 //======================================================================================================================
 exports.insert = async (req, res) => 
 {
@@ -30,14 +44,9 @@ exports.insert = async (req, res) =>
                 pool.query(query, ['A',id,nombre,paterno,materno,genero,fecha_nacimiento,url,estado,telefono, dni, direccion],(err, rows, fields) => {
                     if (!err) {
                         for(let f =0; f<idHuellas;f++){
-                            pool.query(`insert into huella (PER_id) values(FUC_ID_PERSONAL(?))`, [dni],(err, rows, fields) => {
-                                if(!err){
-                                    res.json({status:false,message:'Personal y huella registrado'});
-                                }else{
-                                    console.log(err);
-                                }
-                            });
+                            pool.query(`insert into huella (PER_id) values(FUC_ID_PERSONAL(?))`, [dni],(err, rows, fields));
                         }
+                        res.json({status:false,message:'Personal y huella registrado'});
                     } else {
                         console.log(err);
                     }

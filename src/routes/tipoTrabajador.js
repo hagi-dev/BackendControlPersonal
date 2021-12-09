@@ -4,6 +4,7 @@ const tipoTrabajador = require('../../controles/tipoTrabajador');
 
 //get all tipoTrabajador
 router.get('/api/tipoTrabajador',tipoTrabajador.list);
+router.get('/api/tipoTrabajador/lista',tipoTrabajador.listContrato);
 router.get('/api/tipoTrabajador/:id',tipoTrabajador.listId);
 router.post('/api/tipoTrabajador/registrar',tipoTrabajador.insert);
 router.put('/api/tipoTrabajador/update/:id',tipoTrabajador.update);
