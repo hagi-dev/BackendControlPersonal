@@ -14,6 +14,19 @@ exports.list = (req, res) =>
     });
 }
 
+exports.id = (req, res) => 
+{
+    const {id} = req.params;
+    const query = `select * from contrato where PER_id=FUC_ID_PERSONAL(?)`;
+    pool.query(query, [id], (err, rows, fields) => {
+        if (!err) {
+            res.json(rows);
+        } else {
+            console.log(err);
+        }
+    });
+}
+
 exports.list2 = (req, res) => 
 {
 
@@ -23,7 +36,7 @@ exports.list2 = (req, res) =>
     FROM contrato C INNER JOIN
                   personal P ON C.PER_id = P.PER_id INNER JOIN
                   tipo_trabajador T ON C.TTR_id = T.TTR_id`;
-    const prueba = pool.query(query, ['S',null,null,null,null,null,null], (err, rows, fields) => {
+    pool.query(query, ['S',null,null,null,null,null,null], (err, rows, fields) => {
         if (!err) {
             res.json(rows);
         } else {

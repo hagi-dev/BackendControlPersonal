@@ -4,6 +4,7 @@ const contrato = require('../../controles/contrato');
 
 //get all contrato
 router.get('/api/contrato',contrato.list);
+router.get('/api/contrato/:id',contrato.id);
 router.get('/api/contrato/validate/fecha/:dni',contrato.validateDate);
 router.get('/api/contrato/listaId',contrato.list2);
 router.post('/api/contrato/registrar',contrato.insert);
