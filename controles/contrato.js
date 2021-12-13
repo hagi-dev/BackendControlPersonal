@@ -1,3 +1,4 @@
+const { send } = require('express/lib/response');
 const pool = require('../src/database');
 
 exports.list = (req, res) => 
@@ -12,11 +13,48 @@ exports.list = (req, res) =>
         }
     });
 }
+
+exports.list2 = (req, res) => 
+{
+
+    const query = `SELECT C.CON_id as 'contratoid', P.PER_id as 'personaid', P.PER_nombre as 'nombre', P.PER_apaterno as 
+	'apellido',C.CON_fecha_inn as 'inicioContrato', C.CON_fecha_out as 'finalContrato', C.CON_estado as 'estado',
+	T.TTR_cargo as 'tipoTrabajador'
+    FROM contrato C INNER JOIN
+                  personal P ON C.PER_id = P.PER_id INNER JOIN
+                  tipo_trabajador T ON C.TTR_id = T.TTR_id`;
+    const prueba = pool.query(query, ['S',null,null,null,null,null,null], (err, rows, fields) => {
+        if (!err) {
+            res.json(rows);
+        } else {
+            console.log(err);
+        }
+    });
+}
+
+exports.validateDate = async(req, res) => 
+{
+    const {dni}=req.params;
+
+    try {
+        console.log(dni);
+        const query = `select PER_id from personal where PER_dni=?`;
+        const query2 = `select CON_fecha_out from contrato where PER_id=? order by CON_fecha_out desc `;
+        const prueba =await pool.query(query, dni);
+        const prueba2 =await pool.query(query2, [prueba[0].PER_id]);
+        await res.json(prueba2[0]);
+        
+    } catch (error) {
+        console.log(error);
+    }
+
+}
+
 //======================================================================================================================
 exports.insert = async (req, res) => 
 {
 
-    const {fechaInicioContrato,fechaFinContrato,idPersonal,idTipoTrabajador,idHorarios} = req.body;
+    const {fechaInicioContrato,dni,fechaFinContrato,idPersonal,idTipoTrabajador,idHorarios} = req.body;
     //verificar si existe el personal
     //el status= true ==1 es que si existe y el false==0 es que no existe
     pool.query(`SELECT TIMESTAMPDIFF(MONTH, ?, ?) as valor1`,[fechaInicioContrato,fechaFinContrato],(err, rows, fields) => {
@@ -30,12 +68,12 @@ exports.insert = async (req, res) =>
                     else if(rows[0]['valor']===1){
                         res.json({status:'vigente',message:'el trabajador tiene un contrato vigente en esas fechas'});   
                     }else{
-                        const query = `CALL SP_CRUD_CONTRATO (?,?,?,?,?,?,?)`;
-                        const query2 = `CALL SP_CRUD_JORNADA_LABORAL (?,?,FUC_ID_CONTRATO(?),?,?,?,?,?,?)`;
-                        pool.query(query, ['A',null,fechaInicioContrato,fechaFinContrato,null,idPersonal,idTipoTrabajador],(err, rows, fields) => {
+                        const query = `CALL SP_CRUD_CONTRATO (?,?,?,?,?,FUC_ID_PERSONAL(?),?)`;
+                        const query2 = `CALL SP_CRUD_JORNADA_LABORAL (?,?,FUC_ID_CONTRATO(FUC_ID_PERSONAL(?)),?,?,?,?,?,?)`;
+                        pool.query(query, ['A',null,fechaInicioContrato,fechaFinContrato,null,dni,idTipoTrabajador],(err, rows, fields) => {
                             if (!err) {
                                 // jornada laboral
-                                pool.query(query2, ['A',null,idPersonal,null,null,null,fechaInicioContrato,fechaFinContrato,null],(err, rows, fields) => {
+                                pool.query(query2, ['A',null,dni,null,null,null,fechaInicioContrato,fechaFinContrato,null],(err, rows, fields) => {
                                     if (!err) {
                                         console.log("se inserto el jornada");
                                     } else {
@@ -44,8 +82,8 @@ exports.insert = async (req, res) =>
                                 } );
                                 let valor= idHorarios.length;
                                 for(let a=0 ;a<valor;a++){
-                                    const query3 = `CALL SP_CRUD_CONTRATO_HORARIO (?,FUC_ID_CONTRATO(?),?)`;
-                                    pool.query(query3, ['A',idPersonal,idHorarios[a]],(err, rows, fields) => {
+                                    const query3 = `CALL SP_CRUD_CONTRATO_HORARIO (?,FUC_ID_CONTRATO(FUC_ID_PERSONAL(?)),?)`;
+                                    pool.query(query3, ['A',dni,idHorarios[a]],(err, rows, fields) => {
                                         if (!err) {
                                             console.log("se inserto la horario");
                                         } else {
@@ -55,7 +93,7 @@ exports.insert = async (req, res) =>
                                 };
                                 res.json({status:false,message:'contrato y jornada laboral registrado'});
                             } else {
-                                console.log(err);
+                                res.json({status:false,message:'personal no existe'});
                             }
                         });
                     }
@@ -140,6 +178,7 @@ exports.delete = (req, res) =>
     //opcion T es para terminar el contrato y D es para eliminarlo
     //verificar si existe el id
     //el status= true ==1 es que si existe y el false==0 es que no existe
+    //opcion T es cerrar el contrato y D es eliminarlo
     pool.query(`select FUC_VERIFICAR_CONTRATOID_EXISTENTE(?) as valor`,id,(err, rows, fields) => {
         if (!err) {
             if(rows[0]['valor']===0){

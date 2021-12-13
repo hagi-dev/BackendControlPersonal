@@ -14,10 +14,10 @@ exports.list = async (req, res) =>
 
 }
 
-exports.listContrato = async (req, res) => 
+exports.listContratoArea = async (req, res) => 
 {
 
-    const query = 'select TTR_id as id, TTR_cargo as cargo, TTR_area as area from tipo_trabajador';
+    const query = 'select TTR_area as area, TTR_id as id from tipo_trabajador group by TTR_area';
     await pool.query(query,'CC' ,(err, rows, fields) => {
         if (!err) {
             res.json(rows);
@@ -27,6 +27,21 @@ exports.listContrato = async (req, res) =>
     });
 
 }
+
+exports.listContratoCargo = async (req, res) => 
+{
+
+    const query = 'select TTR_cargo as cargo, TTR_id as id, TTR_area as area from tipo_trabajador';
+    await pool.query(query,'CC' ,(err, rows, fields) => {
+        if (!err) {
+            res.json(rows);
+        } else {
+            console.log(err);
+        }
+    });
+
+}
+
 exports.listId = async (req, res) =>
 {
     const { id } = req.params;

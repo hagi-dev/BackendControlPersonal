@@ -27,6 +27,20 @@ exports.listId = async (req, res) =>
     });
 
 }
+
+exports.id = async (req, res) => 
+{
+    const {dni}=req.body;
+    const query = 'select * from personal where PER_dni=?';
+    await pool.query(query,[dni] ,(err, rows, fields) => {
+        if (!err) {
+            res.json(rows);
+        } else {
+            console.log(err);
+        }
+    });
+
+}
 //======================================================================================================================
 exports.insert = async (req, res) => 
 {

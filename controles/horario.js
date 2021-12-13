@@ -14,10 +14,24 @@ exports.list = async (req, res) =>
 
 }
 
+exports.listContrato2 = async (req, res) => 
+{
+
+    const query = 'CALL SP_CRUD_HORARIO (?,null,null,null,null,null,null,null,null)';
+    await pool.query(query,'S' ,(err, rows, fields) => {
+        if (!err) {
+            res.json(rows);
+        } else {
+            console.log(err);
+        }
+    });
+
+}
+
 exports.listId = async (req, res) => 
 {
     const {id} = req.params;
-    const query = 'select HOR_detalle as detalle, HOR_dirigido as dirigido, HOR_entrada as entrada, HOR_salida as salida, HOR_receso_inn as inicioReceso, HOR_receso_out as finReceso, HOR_estado as estado from horario where HOR_id = ?';
+    const query = 'select HOR_id as id, HOR_detalle as detalle, HOR_dirigido as dirigido, HOR_entrada as entrada, HOR_salida as salida, HOR_receso_inn as inicioReceso, HOR_receso_out as finReceso, HOR_estado as estado from horario where HOR_id = ?';
     await pool.query(query,id ,(err, rows, fields) => {
         if (!err) {
             res.json(rows);
