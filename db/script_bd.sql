@@ -142,3 +142,12 @@ FROM  contrato C INNER JOIN
                   jornada_laboral J ON C.CON_id = J.CON_id INNER JOIN
                   registro_entrada R ON J.JLAB_id = R.JLAB_id 
                   AND J.CON_id = R.CON_id
+
+
+
+SELECT *
+FROM     contrato INNER JOIN
+                  contrato_horario ON contrato.CON_id = contrato_horario.CON_id INNER JOIN
+                  horario ON contrato_horario.HOR_id = horario.HOR_id INNER JOIN
+                  personal ON contrato.PER_id = personal.PER_id INNER JOIN
+                  tipo_trabajador ON contrato.TTR_id = tipo_trabajador.TTR_id

@@ -14,11 +14,11 @@ exports.list = (req, res) =>
     });
 }
 
-exports.id = (req, res) => 
+exports.list3 = (req, res) => 
 {
-    const {id} = req.params;
-    const query = `select * from contrato where PER_id=FUC_ID_PERSONAL(?)`;
-    pool.query(query, [id], (err, rows, fields) => {
+
+    const query = `CALL SP_CRUD_CONTRATO (?,?,?,?,?,?,?)`;
+    const prueba = pool.query(query, ['R',null,null,null,null,null,null], (err, rows, fields) => {
         if (!err) {
             res.json(rows);
         } else {
@@ -27,16 +27,11 @@ exports.id = (req, res) =>
     });
 }
 
-exports.list2 = (req, res) => 
+exports.id = (req, res) => 
 {
-
-    const query = `SELECT C.CON_id as 'contratoid', P.PER_id as 'personaid', P.PER_nombre as 'nombre', P.PER_apaterno as 
-	'apellido',C.CON_fecha_inn as 'inicioContrato', C.CON_fecha_out as 'finalContrato', C.CON_estado as 'estado',
-	T.TTR_cargo as 'tipoTrabajador'
-    FROM contrato C INNER JOIN
-                  personal P ON C.PER_id = P.PER_id INNER JOIN
-                  tipo_trabajador T ON C.TTR_id = T.TTR_id`;
-    pool.query(query, ['S',null,null,null,null,null,null], (err, rows, fields) => {
+    const {id} = req.params;
+    const query = `select * from contrato where PER_id=FUC_ID_PERSONAL(?)`;
+    pool.query(query, [id], (err, rows, fields) => {
         if (!err) {
             res.json(rows);
         } else {
@@ -70,55 +65,49 @@ exports.insert = async (req, res) =>
     const {fechaInicioContrato,dni,fechaFinContrato,idPersonal,idTipoTrabajador,idHorarios} = req.body;
     //verificar si existe el personal
     //el status= true ==1 es que si existe y el false==0 es que no existe
-    pool.query(`SELECT TIMESTAMPDIFF(MONTH, ?, ?) as valor1`,[fechaInicioContrato,fechaFinContrato],(err, rows, fields) => {
-        if(rows[0]['valor1']===6){
 
-            pool.query(`select FUC_VERIFICAR_VIGENCIACONTRATO_EXISTENTE(?,?) as valor`,[idPersonal,fechaInicioContrato],(err, rows, fields) => {
-                if (!err) {
-                    if(rows[0]['valor']===0){
-                        res.json({status:'no valido',message:'la fecha es muy antiguo al vigente  y no es valido'});
-                    }
-                    else if(rows[0]['valor']===1){
-                        res.json({status:'vigente',message:'el trabajador tiene un contrato vigente en esas fechas'});   
-                    }else{
-                        const query = `CALL SP_CRUD_CONTRATO (?,?,?,?,?,FUC_ID_PERSONAL(?),?)`;
-                        const query2 = `CALL SP_CRUD_JORNADA_LABORAL (?,?,FUC_ID_CONTRATO(FUC_ID_PERSONAL(?)),?,?,?,?,?,?)`;
-                        pool.query(query, ['A',null,fechaInicioContrato,fechaFinContrato,null,dni,idTipoTrabajador],(err, rows, fields) => {
+    pool.query(`select FUC_VERIFICAR_VIGENCIACONTRATO_EXISTENTE(?,?) as valor`,[idPersonal,fechaInicioContrato],(err, rows, fields) => {
+        if (!err) {
+            if(rows[0]['valor']===0){
+                res.json({status:'no valido',message:'la fecha es muy antiguo al vigente  y no es valido'});
+            }
+            else if(rows[0]['valor']===1){
+                res.json({status:'vigente',message:'el trabajador tiene un contrato vigente en esas fechas'});   
+            }else{
+                const query = `CALL SP_CRUD_CONTRATO (?,?,?,?,?,FUC_ID_PERSONAL(?),?)`;
+                const query2 = `CALL SP_CRUD_JORNADA_LABORAL (?,?,FUC_ID_CONTRATO(FUC_ID_PERSONAL(?)),?,?,?,?,?,?)`;
+                pool.query(query, ['A',null,fechaInicioContrato,fechaFinContrato,null,dni,idTipoTrabajador],(err, rows, fields) => {
+                    if (!err) {
+                        // jornada laboral
+                        pool.query(query2, ['A',null,dni,null,null,null,fechaInicioContrato,fechaFinContrato,null],(err, rows, fields) => {
                             if (!err) {
-                                // jornada laboral
-                                pool.query(query2, ['A',null,dni,null,null,null,fechaInicioContrato,fechaFinContrato,null],(err, rows, fields) => {
-                                    if (!err) {
-                                        console.log("se inserto el jornada");
-                                    } else {
-                                        console.log(err);
-                                    }
-                                } );
-                                let valor= idHorarios.length;
-                                for(let a=0 ;a<valor;a++){
-                                    const query3 = `CALL SP_CRUD_CONTRATO_HORARIO (?,FUC_ID_CONTRATO(FUC_ID_PERSONAL(?)),?)`;
-                                    pool.query(query3, ['A',dni,idHorarios[a]],(err, rows, fields) => {
-                                        if (!err) {
-                                            console.log("se inserto la horario");
-                                        } else {
-                                            console.log(err);
-                                        }
-                                    } );
-                                };
-                                res.json({status:false,message:'contrato y jornada laboral registrado'});
+                                console.log("se inserto el jornada");
                             } else {
-                                res.json({status:false,message:'personal no existe'});
+                                console.log(err);
                             }
-                        });
+                        } );
+                        let valor= idHorarios.length;
+                        for(let a=0 ;a<valor;a++){
+                            const query3 = `CALL SP_CRUD_CONTRATO_HORARIO (?,FUC_ID_CONTRATO(FUC_ID_PERSONAL(?)),?)`;
+                            pool.query(query3, ['A',dni,idHorarios[a]],(err, rows, fields) => {
+                                if (!err) {
+                                    console.log("se inserto la horario");
+                                } else {
+                                    console.log(err);
+                                }
+                            } );
+                        };
+                        res.json({status:false,message:'contrato y jornada laboral registrado'});
+                    } else {
+                        res.json({status:false,message:'personal no existe'});
                     }
-                } else {
-                    console.log(err);
-                }   
-            });
-    
-        }else{
-            res.json({message:'error!! un contrato tiene duracion de 6 este registro tiene '+rows[0]['valor1']});
-        }
+                });
+            }
+        } else {
+            console.log(err);
+        }   
     });
+    
 
     //traer el id por defecto de pedido para insertar en la tabla detalle
 
