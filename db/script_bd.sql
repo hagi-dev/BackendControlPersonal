@@ -151,3 +151,38 @@ FROM     contrato INNER JOIN
                   horario ON contrato_horario.HOR_id = horario.HOR_id INNER JOIN
                   personal ON contrato.PER_id = personal.PER_id INNER JOIN
                   tipo_trabajador ON contrato.TTR_id = tipo_trabajador.TTR_id
+
+SELECT 
+FROM     contrato INNER JOIN
+                  contrato AS contrato_1 ON contrato.CON_id = contrato_1.CON_id INNER JOIN
+                  jornada_laboral ON contrato.CON_id = jornada_laboral.CON_id AND contrato_1.CON_id = jornada_laboral.CON_id INNER JOIN
+                  registro_entrada ON jornada_laboral.JLAB_id = registro_entrada.JLAB_id AND jornada_laboral.CON_id = registro_entrada.CON_id
+## seleccionar las asitencias por hora de entrada y hora de salida agrupados por id contrato
+SELECT
+FROM     contrato INNER JOIN
+                  contrato AS contrato_1 ON contrato.CON_id = contrato_1.CON_id INNER JOIN
+                  jornada_laboral ON contrato.CON_id = jornada_laboral.CON_id AND contrato_1.CON_id = jornada_laboral.CON_id INNER JOIN
+                  registro_entrada ON jornada_laboral.JLAB_id = registro_entrada.JLAB_id AND jornada_laboral.CON_id = registro_entrada.CON_id
+
+
+
+SELECT 
+FROM     contrato INNER JOIN
+                  contrato_horario ON contrato.CON_id = contrato_horario.CON_id INNER JOIN
+                  horario ON contrato_horario.HOR_id = horario.HOR_id
+
+
+SELECT contrato.CON_id, personal.PER_nombre, personal.PER_apaterno, jornada_laboral.JLAB_cargo, registro_entrada.REGE_hora_inn,
+jornada_laboral.JLAB_asistencia, FUC_VERIFICAR_HORAS_TRABAJADAS(ontrato.CON_id,curDate())
+FROM     contrato INNER JOIN
+                  personal ON contrato.PER_id = personal.PER_id INNER JOIN
+                  tipo_trabajador ON contrato.TTR_id = tipo_trabajador.TTR_id INNER JOIN
+                  registro_entrada ON contrato.CON_id = registro_entrada.CON_id INNER JOIN
+                  jornada_laboral ON contrato.CON_id = jornada_laboral.CON_id AND registro_entrada.JLAB_id = jornada_laboral.JLAB_id AND 
+                  registro_entrada.CON_id = jornada_laboral.CON_id                  
+
+
+SELECT 
+FROM     jornada_laboral INNER JOIN
+                  registro_entrada ON jornada_laboral.JLAB_id = registro_entrada.JLAB_id 
+                  AND jornada_laboral.CON_id = registro_entrada.CON_id

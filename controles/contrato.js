@@ -27,6 +27,20 @@ exports.list3 = (req, res) =>
     });
 }
 
+exports.horarios = (req, res) => 
+{
+    const {id} = req.params;
+
+    const query = `select HOR_id from contrato_horario where CON_id=?`;
+    const prueba = pool.query(query, [id], (err, rows, fields) => {
+        if (!err) {
+            res.json(rows);
+        } else {
+            console.log(err);
+        }
+    });
+}
+
 exports.id = (req, res) => 
 {
     const {id} = req.params;
@@ -76,7 +90,7 @@ exports.insert = async (req, res) =>
             }else{
                 const query = `CALL SP_CRUD_CONTRATO (?,?,?,?,?,FUC_ID_PERSONAL(?),?)`;
                 const query2 = `CALL SP_CRUD_JORNADA_LABORAL (?,?,FUC_ID_CONTRATO(FUC_ID_PERSONAL(?)),?,?,?,?,?,?)`;
-                pool.query(query, ['A',null,fechaInicioContrato,fechaFinContrato,null,dni,idTipoTrabajador],(err, rows, fields) => {
+                pool.query(query, ['A',null,fechaInicioContrato,fechaFinContrato,null,dni,idTipoTrabajador], async(err, rows, fields) => {
                     if (!err) {
                         // jornada laboral
                         pool.query(query2, ['A',null,dni,null,null,null,fechaInicioContrato,fechaFinContrato,null],(err, rows, fields) => {
@@ -86,7 +100,9 @@ exports.insert = async (req, res) =>
                                 console.log(err);
                             }
                         } );
+                        
                         let valor= idHorarios.length;
+                        console.log(valor);
                         for(let a=0 ;a<valor;a++){
                             const query3 = `CALL SP_CRUD_CONTRATO_HORARIO (?,FUC_ID_CONTRATO(FUC_ID_PERSONAL(?)),?)`;
                             pool.query(query3, ['A',dni,idHorarios[a]],(err, rows, fields) => {
@@ -119,58 +135,87 @@ exports.insert = async (req, res) =>
 
 exports.update = async (req, res) => 
 {
-    const {fechaInicioContrato,fechaFinContrato,idPersonal,idTipoTrabajador,estado,idHorario} = req.body;
+    const {fechaInicioContrato,dni,fechaFinContrato,idTipoTrabajador,estado,idHorarios} = req.body;
     const {id} = req.params;
     //verificar si existe el id
     //el status= true ==1 es que si existe y el false==0 es que no existe
-    pool.query(`SELECT TIMESTAMPDIFF(MONTH, ?, ?) as valor1`,[fechaInicioContrato,fechaFinContrato],(err, rows, fields) => {
-        if(rows[0]['valor1']===6){
 
-            pool.query(`select FUC_VERIFICAR_VIGENCIACONTRATO_MODIFICAR(?,?) as valor`,[idPersonal,fechaInicioContrato],(err, rows, fields) => {
-                if (!err) {
-                    if(rows[0]['valor']===0){
-                        res.json({status:'no valido',message:'la fecha es muy antiguo al vigente  y no es valido'});
-                    }
-                    else if(rows[0]['valor']===1){
-                        res.json({status:'vigente',message:'el trabajador tiene un contrato vigente en esas fechas'});   
-                    }else{
-                        const query = `CALL SP_CRUD_CONTRATO (?,?,?,?,?,?,?)`;
-                        const query2 = `CALL SP_CRUD_JORNADA_LABORAL (?,?,FUC_ID_CONTRATO(?),?,?,?,?,?,?)`;
-                        const query3 = `select FUC_VERIFICAR_CONTRATO_JORNADALABORAL(?,?) as valor2`;
-                        pool.query(query, ['M',id,fechaInicioContrato,fechaFinContrato,estado,idPersonal,idTipoTrabajador],(err, rows, fields) => {
+    pool.query(`select FUC_VERIFICAR_VIGENCIACONTRATO_MODIFICAR(FUC_ID_PERSONAL(?),?) as valor`,[dni,fechaInicioContrato],(err, rows, fields) => {
+        if (!err) {
+            if(rows[0]['valor']===0){
+                res.json({status:'no valido',message:'la fecha es muy antiguo al vigente  y no es valido'});
+            }
+            else if(rows[0]['valor']===1){
+                res.json({status:'vigente',message:'el trabajador tiene un contrato vigente en esas fechas'});   
+            }else{
+                const query = `CALL SP_CRUD_CONTRATO (?,?,?,?,?,FUC_ID_PERSONAL(?),?)`;
+                const query2 = `CALL SP_CRUD_JORNADA_LABORAL (?,?,FUC_ID_CONTRATO(FUC_ID_PERSONAL(?)),?,?,?,?,?,?)`;
+                const query3 = `select FUC_VERIFICAR_CONTRATO_JORNADALABORAL(?,?) as valor2`;
+                
+
+                        
+                        pool.query(query3, [id,fechaInicioContrato],(err, rows, fields) => {
                             if (!err) {
-                                // jornada laboral
-                                pool.query(query3, [id,fechaInicioContrato],(err, rows, fields) => {
-                                    if (!err) {
-                                        if(rows[0]['valor2']===1){
-                                            pool.query(query2, ['A',null,idPersonal,null,null,null,fechaInicioContrato,null,fechaFinContrato],(err, rows, fields) => {
+                                
+                                if(rows[0]['valor2']===1){
+                                    console.log("aca entro");
+                                    pool.query(query, ['M',id,fechaInicioContrato,fechaFinContrato,'1',dni,idTipoTrabajador],async(err, rows, fields) => {
+                                        if(!err){
+                                            pool.query(query2, ['A',null,dni,null,null,null,fechaInicioContrato,fechaFinContrato,null],(err, rows, fields) => {
                                                 if (!err) {
-                                                    res.json({status:false,message:'el contrato y la jornada laboral fueron actualizados'});
+                                                    console.log('el contrato y la jornada laboral fueron actualizados');
                                                 } else {
                                                     console.log(err);
                                                 }
                                             } );
+                                            await pool.query(`CALL SP_CRUD_CONTRATO_HORARIO (?,?,?)`,['D',id,null]);
+                                            let valor= idHorarios.length;
+                                            for(let a=0 ;a<valor;a++){
+                                                const query4 = `CALL SP_CRUD_CONTRATO_HORARIO (?,FUC_ID_CONTRATO(FUC_ID_PERSONAL(?)),?)`;
+                                                pool.query(query4, ['A',dni,idHorarios[a]],(err, rows, fields) => {
+                                                    if (!err) {
+                                                        console.log("se inserto la horario");
+                                                    } else {
+                                                        console.log(err);
+                                                    }
+                                                } );
+                                            };
+                                            res.json({status:false,message:'contrato y jornada laboral acatualizado'});
                                         }
-                                    } else {
-                                        console.log(err);
-                                        res.json({status:false,message:'existe movimiento o no hay cambios en las fechas'});
-                                    }
-                                } );
+                                    });
+                                   
+                                    
+                                }else{
+                                    pool.query(query, ['P',id,fechaInicioContrato,fechaFinContrato,'1',dni,idTipoTrabajador],async(err, rows, fields) => {
+                                        if(!err){
+                                            await pool.query(`CALL SP_CRUD_CONTRATO_HORARIO (?,?,?)`,['D',id,null]);
+                                            let valor= idHorarios.length;
+                                            for(let a=0 ;a<valor;a++){
+                                                const query4 = `CALL SP_CRUD_CONTRATO_HORARIO (?,FUC_ID_CONTRATO(FUC_ID_PERSONAL(?)),?)`;
+                                                pool.query(query4, ['A',dni,idHorarios[a]],(err, rows, fields) => {
+                                                    if (!err) {
+                                                        console.log("se inserto la horario");
+                                                    } else {
+                                                        console.log(err);
+                                                    }
+                                                } );
+                                            };
+                                            res.json({status:false,message:'solo se modifico el cargo y el horario pero no se puede alterar las fechas y la jornada laboral'});
+                                                }
+                                            });             
+                                }
                             } else {
                                 console.log(err);
+                                res.json({status:false,message:'existe movimiento o no hay cambios en las fechas'});
                             }
-                        });
-                    }
-                } else {
-                    console.log(err);
-                }   
-            });
-    
-        }else{
-            res.json({message:'error!! un contrato tiene duracion de 6 este registro tiene '+rows[0]['valor1']});
-        }
-    });                 
-};
+                        } );
+            }
+        } else {
+            console.log(err);
+        }   
+    });
+};   
+
 
 //======================================================================================================================
 exports.delete = (req, res) => 

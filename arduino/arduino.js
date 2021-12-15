@@ -49,19 +49,19 @@ parser.on('data', async (data) => {
             await console.log(contratoid[0].CON_id);
             const jornadaid=await pool.query(`select JLAB_id FROM jornada_laboral WHERE JLAB_fecha=? and CON_id=?`,[date1,contratoid[0]['CON_id']]);
             await console.log(jornadaid[0].JLAB_id);
-            const verificar= await pool.query(`select FUC_VERIFICAR_HORARIO(?,?,?) as valor`,[contratoid[0].CON_id,date1,'8:40:00']);
+            const verificar= await pool.query(`select FUC_VERIFICAR_HORARIO(?,?,?) as valor`,[contratoid[0].CON_id,date1,time1]);
             console.log(verificar[0].valor);
             switch(verificar[0].valor){
                 case 10:
-                    await pool.query(`insert into registro_entrada (JLAB_id,CON_id,REGE_hora_inn,REGE_justificacion) values (?,?,?,?)`,[jornadaid[0]['JLAB_id'],contratoid[0]['CON_id'],'8:40:00','3']);
+                    await pool.query(`insert into registro_entrada (JLAB_id,CON_id,REGE_hora_inn,REGE_justificacion) values (?,?,?,?)`,[jornadaid[0]['JLAB_id'],contratoid[0]['CON_id'],time1,'3']);
                     await pool.query(`update jornada_laboral set JLAB_asistencia=?, JLAB_observacion=? where JLAB_id=?`,['1',"asistio",jornadaid[0]['JLAB_id']]);
                     break;
                 case 20:
-                    await pool.query(`insert into registro_entrada (JLAB_id,CON_id,REGE_hora_inn,REGE_justificacion) values (?,?,?,?)`,[jornadaid[0]['JLAB_id'],contratoid[0]['CON_id'],'8:40:00','0']);
+                    await pool.query(`insert into registro_entrada (JLAB_id,CON_id,REGE_hora_inn,REGE_justificacion) values (?,?,?,?)`,[jornadaid[0]['JLAB_id'],contratoid[0]['CON_id'],time1,'0']);
                     await pool.query(`update jornada_laboral set JLAB_asistencia=?, JLAB_observacion=? where JLAB_id=?`,['1',"llego tarde",jornadaid[0]['JLAB_id']]);
                     break;
                 case 30:
-                    await pool.query(`insert into registro_entrada (JLAB_id,CON_id,REGE_hora_inn,REGE_justificacion) values (?,?,?,?)`,[jornadaid[0]['JLAB_id'],contratoid[0]['CON_id'],'8:40:00','0']);
+                    await pool.query(`insert into registro_entrada (JLAB_id,CON_id,REGE_hora_inn,REGE_justificacion) values (?,?,?,?)`,[jornadaid[0]['JLAB_id'],contratoid[0]['CON_id'],time1,'0']);
                     await pool.query(`update jornada_laboral set JLAB_asistencia=?, JLAB_observacion=? where JLAB_id=?`,['1',"salio muy temprano",jornadaid[0]['JLAB_id']]);
                     break; 
                 default: console.log('no se pudo registrar');break;       

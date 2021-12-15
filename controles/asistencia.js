@@ -1,15 +1,15 @@
 const pool = require('../src/database');
 
-exports.list = async (req, res) => 
+exports.list = (req, res) => 
 {
-
-    const query = 'SELECT * FROM asistencia';
-    await pool.query(query,'S' ,(err, rows, fields) => {
+    const {fecha}=req.body;
+    console.log(fecha);
+    const query = `CALL SP_CRUD_ASISTENCIA (?,?,?)`;
+    const prueba = pool.query(query, ['S',null,fecha], (err, rows, fields) => {
         if (!err) {
             res.json(rows);
         } else {
             console.log(err);
         }
     });
-
 }
