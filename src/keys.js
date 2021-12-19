@@ -4,5 +4,6 @@ module.exports = {
         user: 'root',
         password: '',
         database: 'control_personal'
-    }
+    },
+    key:'secret token sonia'
 };

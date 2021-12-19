@@ -2,9 +2,14 @@ const pool = require('../src/database');
 
 exports.list = async (req, res) => 
 {
-
-    const query = 'CALL SP_CRUD_PERSONAL (?,null,null,null,null,null,null,null,null,null,null,null)';
-    await pool.query(query,'S' ,(err, rows, fields) => {
+    const fecha= new Date();
+    console.log(fecha);
+    const query = `SELECT PER_id as id,PER_dni as dni,PER_nombre as nombre,PER_apaterno 
+    as apellidoPaterno,PER_amaterno as apellidoMaterno,PER_genero 
+    as sexo,PER_fec_nacimiento as fechaNacimiento, PER_foto as "foto",
+     PER_estado as estado , PER_direccion as direccion, PER_telefono as 
+    telefono, TIMESTAMPDIFF(Year,PER_fec_nacimiento ,?) as edad FROM PERSONAL;`;
+    await pool.query(query,fecha,(err, rows, fields) => {
         if (!err) {
             res.json(rows);
         } else {
@@ -48,7 +53,7 @@ exports.insert = async (req, res) =>
     const {id,nombre,paterno,genero,materno,dni,url,telefono,direccion,fecha_nacimiento,estado,idHuellas} = req.body;
     //verificar si existe el personal
     //el status= true ==1 es que si existe y el false==0 es que no existe
-    await pool.query(`select FUC_VERIFICAR_PERSONAL_EXISTENTE(?) as valor`,[dni],(err, rows, fields) => {
+    await pool.query(`select verificaciones(?,?,?) as valor`,["dni",null,dni],(err, rows, fields) => {
         if (!err) {
             if(rows[0]['valor']===1){
                 res.json({status:true,message:'El personal ya existe'});
