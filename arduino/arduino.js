@@ -37,7 +37,7 @@ parser.on('data', async (data) => {
             let hoy=new Date();
             // extraer solo la fecha de Date
             const date1 = formatearFecha(hoy);
-            // extraer solo la hora de Date
+            // extraer solo la hora de Date para
             const time1 = hoy.getHours() + ':' + hoy.getMinutes() + ':' + hoy.getSeconds();
             await console.log(time1);
             await console.log(date1);

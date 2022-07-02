@@ -1,6 +1,6 @@
 create database if not exists control_personal;
 use control_personal;
-
+-- script for db isabella
 create table nivel_sancion(
 	NSA_id int auto_increment primary key not null,
     NSA_descripcion varchar (50),

@@ -18,6 +18,7 @@ app.use(morgan('dev'));
 app.use(Express.json());
 app.use(cors());
 //------------------------------------------------------------------------------
+// routes protect
 const rutasProtegidas = Express.Router(); 
 rutasProtegidas.use((req, res, next) => {
     let token = req.headers['x-access-token'] || req.headers['authorization'];

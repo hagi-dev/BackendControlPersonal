@@ -1,6 +1,7 @@
 const { send } = require('express/lib/response');
 const pool = require('../src/database');
 
+//list of personal
 exports.list = (req, res) => 
 {
 
