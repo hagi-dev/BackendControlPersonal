@@ -3,12 +3,21 @@ const pool = require('../src/database');
 exports.list = async (req, res) => 
 {
 
-    const query = 'CALL SP_CRUD_HORARIO (?,null,null,null,null,null,null,null,null)';
-    await pool.query(query,'S' ,(err, rows, fields) => {
+    const query = 'select HOR_id as id, HOR_detalle as detalle, HOR_dirigido as dirigido, HOR_entrada as entrada, HOR_salida as salida, HOR_receso_inn as inicioReceso, HOR_receso_out as finReceso, HOR_estado as estado from horario';
+    await pool.query(query, [],(err, rows, fields) => {
         if (!err) {
-            res.json(rows);
+            res.json({
+                ok: true,
+                data: rows,
+                message: "",
+            });
         } else {
-            console.log(err);
+            console.error(err);
+            res.json({
+                ok: false,
+                data: [],
+                message: "no se encontro al personal",
+            });
         }
     });
 

@@ -9,5 +9,6 @@ router.get('/api/personal/id/:id',personal.listId);
 router.post('/api/personal/registrar',personal.insert);
 router.put('/api/personal/update/:id',personal.update);
 router.delete('/api/personal/delete/:id',personal.delete);
+router.put('/api/personal/update-password/:dni',personal.updatePassword);
 
 module.exports = router;

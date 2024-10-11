@@ -1,6 +1,12 @@
+require('dotenv').config();
 const mysql = require('mysql');
 const { promisify } = require('util');
-const { database } = require('./keys');
+const database ={
+    host: process.env.DB_HOST || 'localhost',
+    user: process.env.DB_USER || 'root',
+    password: process.env.DB_PASSWORD || '',
+    database: process.env.DB_NAME || 'control_personal',
+}
 const pool = mysql.createPool(database);
 pool.getConnection((err, connection) => {
     if (err) {

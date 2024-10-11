@@ -31,7 +31,7 @@ exports.listContratoArea = async (req, res) =>
 exports.listContratoCargo = async (req, res) => 
 {
 
-    const query = 'select TTR_cargo as cargo, TTR_id as id, TTR_area as area from tipo_trabajador';
+    const query = 'select TTR_descripcion as cargo, TTR_id as id from tipo_trabajador';
     await pool.query(query,'CC' ,(err, rows, fields) => {
         if (!err) {
             res.json(rows);

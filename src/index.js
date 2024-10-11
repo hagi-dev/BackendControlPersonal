@@ -7,10 +7,11 @@ const keys = require("./keys");
 const express = require("express");
 const res = require("express/lib/response");
 const pool = require('./database');
+require('dotenv').config();
 //------------------------------------------------------------------------------
 //settings port
 app.set("port", process.env.PORT || 3000);
-app.set("key",keys.key);
+app.set("key", process.env.SECRET_KEY || 'defaultkey');
 console.log(app.get("key"));
 //Middlewares
 app.use(express.urlencoded({extended:false}));
@@ -45,6 +46,7 @@ rutasProtegidas.use((req, res, next) => {
 
 //Routes
 app.use(require("./routes/login"),rutasProtegidas);
+app.use(require("./routes/recovery-password"));
 app.use(require("./routes/asistencia"));
 app.use(require("./routes/personal"),rutasProtegidas);
 app.use(require("./routes/contrato"),rutasProtegidas);
