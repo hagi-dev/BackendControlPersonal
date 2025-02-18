@@ -1,9 +1,6 @@
 require('dotenv').config();
-const mysql = require('mysql2/promise');
+const mysql = require('mysql2');
 const { promisify } = require('util');
-const { URL } = require('url');
-
-// Parsear la cadena de conexión
 const connectionString = process.env.BD_URL_CONNECTION || '';
 const dbUrl = new URL(connectionString);
 
@@ -17,29 +14,43 @@ const database = {
 };
 
 const pool = mysql.createPool(database);
+pool.getConnection((err, connection) => {
+    if (err) {
+        if (err.code === 'PROTOCOL_CONNECTION_LOST') {
+            console.error('Database connection was closed.')
+        }
+        if (err.code === 'ER_CON_COUNT_ERROR') {
+            console.error('Database has too many connections.')
+        }
+        if (err.code === 'ECONNREFUSED') {
+            console.error('Database connection was refused.')
+        }
+    }
 
-pool.getConnection()
-  .then(connection => {
-    console.log('DB is connected');
-    connection.release();
-  })
-  .catch(err => {
-    if (err.code === 'PROTOCOL_CONNECTION_LOST') {
-      console.error('Database connection was closed.');
-    }
-    if (err.code === 'ER_CON_COUNT_ERROR') {
-      console.error('Database has too many connections.');
-    }
-    if (err.code === 'ECONNREFUSED') {
-      console.error('Database connection was refused.');
-    }
-    if (err.code === 'ETIMEDOUT') {
-      console.error('Database connection timed out.');
-    }
-    console.error('Error connecting to the database:', err);
-  });
+    if (connection) connection.release()
+    console.log('DB is connected 1');
+    return
+});
 
-// Promisify pool query
+//promisefy pool query
 pool.query = promisify(pool.query);
 
 module.exports = pool;
+
+
+// const mysqlConnection = mysql.createConnection({
+//     host: 'localhost',
+//     user: 'root',
+//     password: '',
+//     database: 'control_personal',
+//     multipleStatements: true
+// });
+
+// mysqlConnection.connect(function (err) {
+//     if (err) {
+//         console.log(err);
+//         return;
+//     }else {
+//         console.log('DB is connected');
+//     }
+// });
