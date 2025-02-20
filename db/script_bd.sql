@@ -54,12 +54,8 @@ Hor_dirigido varchar(50)
 
 create table contrato (
 CON_id int auto_increment not null primary key,
-CON_fecha_inn date,
-CON_fehcha_out date,
 CON_estado char(1),
-
 PER_id int not null,
-
 constraint FK_PER_id2 foreign key  (PER_id) references personal (PER_id)
 on delete cascade on update cascade
 
