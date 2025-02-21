@@ -194,7 +194,7 @@ exports.delete = async (req, res) => {
   //verificar si existe el id
   //el status= true ==1 es que si existe y el false==0 es que no existe
   try {
-    const query = "update personal set PER_estado=0 where PER_id=?";
+    const query = "delete from personal where PER_id=?";
     await pool.query(query, [id], (err, rows, fields) => {
       if (!err) {
         res.json({ status: true, message: "personal eliminado", ok: true });
