@@ -17,7 +17,7 @@ console.log(app.get("key"));
 app.use(express.urlencoded({extended:false}));
 app.use(morgan('dev'));
 app.use(Express.json());
-app.use(cors());
+app.use(cors({origin: '*'}));
 //------------------------------------------------------------------------------
 // routes protect
 const rutasProtegidas = Express.Router(); 
