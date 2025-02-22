@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "start": "npx nodemon ./src/index.js",
-    "serve": "node index.js"
+    "serve": "node index.js",
+    "update-browserslist-db": "npx browserslist@latest --update-db",
+    "build": "npm run update-browserslist-db && react-scripts build"
   },
   "keywords": [],
   "author": "",
